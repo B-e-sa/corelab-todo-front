@@ -1,3 +1,5 @@
+@import "./styles//breakpoints";
+
 .main {
   display: flex;
   flex-direction: column;
@@ -22,13 +24,31 @@
   margin-bottom: 10px;
 }
 
+@mixin grid-columns($quantity: 1) {
+  grid-template-columns: repeat($quantity, 1fr)
+}
+
 .todos-container,
 .favorite-todos-container {
+  @include grid-columns;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 45px;
 }
 
 .favorite-todos-container {
   width: 100%;
+}
+
+@media (min-width: $xl) {
+  .todos-container,
+  .favorite-todos-container {
+    @include grid-columns(2)
+  }
+}
+
+@media (min-width: $xxl) {
+  .todos-container,
+  .favorite-todos-container {
+    @include grid-columns(3)
+  }
 }

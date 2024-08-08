@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
-import NewTodo from "./components/new-todo/new-todo";
-import Todo from "./components/todo";
+import NewTodo from "./components/todo/new-todo/new-todo";
+import Todo from "./components/todo/editable-todo";
 import styles from "./page.module.scss";
 
 const inter = Inter({ subsets: ["latin"] });
