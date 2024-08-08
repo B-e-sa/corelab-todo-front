@@ -1,13 +1,9 @@
-"use client";
-
-import { useRef } from "react";
+import { ComponentProps } from "react";
 import style from "./color-pale.style.module.scss";
-import useOutsideElementClick from "@/app/hooks/useOutsideElementClick";
 
-export default function ColorPalett() {
-  const wrapperRef = useRef(null);
-  useOutsideElementClick(wrapperRef);
+type ColorPaletteProps = ComponentProps<"div">;
 
+export default function ColorPalett(props: ColorPaletteProps) {
   const colors = [
     "#BAE2FF",
     "#B9FFDD",
@@ -24,7 +20,7 @@ export default function ColorPalett() {
   ];
 
   return (
-    <div ref={wrapperRef} className={style.palette}>
+    <div {...props} className={`${style.palette} ${props.className}`}>
       {colors.map((c) => (
         <div
           /* TODO: implement the API call for changing colors */
