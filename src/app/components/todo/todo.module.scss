@@ -1,0 +1,71 @@
+@import "../../styles/mixins";
+
+$todo-width: 400px;
+$todo-padding-inline: 25px;
+.todo {
+  @include box-shadow;
+  width: $todo-width;
+  height: 450px;
+  border-radius: 25px;
+  padding-inline: $todo-padding-inline;
+  padding-top: 20px;
+
+  input {
+    border: none;
+    background: none;
+
+    &:focus {
+      border: none;
+      outline: none;
+    }
+  }
+
+  $additional-body-padding: 5px;
+  .head {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    padding-inline: $additional-body-padding;
+
+    > input {
+      z-index: 1;
+      font-weight: 700;
+      font-size: 20px;
+      color: #4f4f4d;
+      padding-bottom: 10px;
+    }
+
+    &::after {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+      content: "";
+      position: absolute;
+      left: -$todo-padding-inline;
+      width: $todo-width;
+      height: 100%;
+    }
+  }
+
+  .body {
+    padding-block: 18px;
+    height: calc(100% - 35px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    > textarea {
+      @include input-reset;
+      resize: none;
+      margin-inline: $additional-body-padding;
+      font-size: 15px;
+    }
+
+    .foot {
+      display: flex;
+      justify-content: space-between;
+
+      > div {
+        display: flex;
+      }
+    }
+  }
+}

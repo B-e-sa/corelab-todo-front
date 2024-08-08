@@ -1,0 +1,33 @@
+@import "../../styles/mixins";
+
+.header {
+  height: 70px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  padding-inline: 45px;
+
+  > p {
+    margin-left: 25px;
+    margin-right: 40px
+  }
+
+  .x-icon {
+    margin-left: auto;
+  }
+
+  input {
+    @include input-reset;
+  }
+
+  .search-bar {
+    @include box-shadow($offset-x: 1px, $offset-y: 1px, $size: 2px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 15px;
+    width: 530px;
+    height: 38px;
+    border-radius: 5px;
+  }
+}
