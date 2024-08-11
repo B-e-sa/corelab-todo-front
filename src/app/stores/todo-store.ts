@@ -1,27 +1,40 @@
 import { create } from "zustand";
-import { TodoProps } from "../components/todo/editable-todo";
+import { TodoEntity } from "../shared/types/TodoEntity";
+import { todo } from "node:test";
 
 export type State = {
-  storeTodos: TodoProps[];
-  otherTodos: TodoProps[];
-  favoriteTodos: TodoProps[];
+  storeTodos: TodoEntity[];
+  otherTodos: TodoEntity[];
+  searchedTodos: TodoEntity[];
+  favoriteTodos: TodoEntity[];
+  apiCallQuantity: number;
 };
 
 export type Actions = {
-  setStoreTodos: (todos: TodoProps[]) => void;
-  getTodos: () => TodoProps[];
+  setStoreTodos: (todos: TodoEntity[]) => void;
+  getTodos: () => TodoEntity[];
   filter: () => void;
-  updateStoreTodos: (todos: TodoProps[]) => void;
+  updateStoreTodos: (todos: TodoEntity[]) => void;
   unfavoriteTodo: (id: number) => void;
   favoriteTodo: (id: number) => void;
-  createTodo: (todo: TodoProps) => void;
-  deleteTodo: (todo: TodoProps) => void;
+  createStoreTodo: (todo: TodoEntity) => void;
+  deleteStoreTodo: (id: number) => void;
+  increaseApiCallQuantity: () => void;
+  setSearchedTodos: (todos: TodoEntity[]) => void;
 };
 
 export const useTodoStore = create<State & Actions>((set, get) => ({
   storeTodos: [],
   otherTodos: [],
   favoriteTodos: [],
+  apiCallQuantity: 0,
+  searchedTodos: [],
+
+  setSearchedTodos: (todos) => {
+    set(() => ({
+      searchedTodos: todos,
+    }));
+  },
 
   setStoreTodos: (todos) => {
     set(() => ({ storeTodos: todos }));
@@ -35,22 +48,28 @@ export const useTodoStore = create<State & Actions>((set, get) => ({
     get().filter();
   },
 
-  createTodo: (todo) => {
+  createStoreTodo: (todo) => {
     set((state) => ({ storeTodos: [todo, ...state.storeTodos] }));
     get().filter();
   },
 
-  deleteTodo: (todo) => {
-    const filteredTodoArray = get().storeTodos.filter((t) => t !== todo.id);
+  deleteStoreTodo: (id) => {
+    const filteredTodoArray = get().storeTodos.filter((t) => t.id !== id);
     set(() => ({ storeTodos: filteredTodoArray }));
     get().filter();
   },
 
   favoriteTodo: (id: number) => {
     const foundIndex = get().otherTodos.findIndex((t) => t.id === id);
+
     get().otherTodos[foundIndex].favorite = true;
     get().filter();
   },
+
+  increaseApiCallQuantity: () =>
+    set((state) => ({
+      apiCallQuantity: state.apiCallQuantity + 1,
+    })),
 
   unfavoriteTodo: (id: number) => {
     const foundIndex = get().favoriteTodos.findIndex((t) => t.id === id);
@@ -59,8 +78,11 @@ export const useTodoStore = create<State & Actions>((set, get) => ({
   },
 
   filter: () => {
-    const favs: TodoProps[] = [];
-    const others: TodoProps[] = [];
+    const favs: TodoEntity[] = [];
+    const others: TodoEntity[] = [];
+
+    console.log()
+
     get().storeTodos.forEach((t) => {
       if (t.favorite) favs.push(t);
       else others.push(t);

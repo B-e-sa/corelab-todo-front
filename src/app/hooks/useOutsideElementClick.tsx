@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect } from "react";
 
 /**
  *
- * Hook that detects if a click occurred outside the specified 
+ * Detects if a click occurred outside the specified 
  * element and triggers the specified callback if so
  *
  */

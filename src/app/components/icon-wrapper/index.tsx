@@ -9,7 +9,7 @@ type IconWrapperProps = ComponentProps<"div"> & {
 
 export default function IconWrapper({
   color = "gray",
-  size = 35,
+  size = 25,
   children,
   ...props
 }: IconWrapperProps) {

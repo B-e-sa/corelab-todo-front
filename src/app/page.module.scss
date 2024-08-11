@@ -9,13 +9,19 @@
   margin-top: 33px;
 }
 
+.other {
+  margin-top: 33px;
+}
+
 .other,
 .favorites,
-.new-todo {
+.new-todo,
+.searched {
   align-self: center;
 }
 
-.favorites {
+.favorites,
+.searched {
   margin-block: 45px;
 }
 
@@ -25,7 +31,7 @@
 }
 
 @mixin grid-columns($quantity: 1) {
-  grid-template-columns: repeat($quantity, 1fr)
+  grid-template-columns: repeat($quantity, 1fr);
 }
 
 .todos-container,
@@ -42,13 +48,13 @@
 @media (min-width: $xl) {
   .todos-container,
   .favorite-todos-container {
-    @include grid-columns(2)
+    @include grid-columns(2);
   }
 }
 
 @media (min-width: $xxl) {
   .todos-container,
   .favorite-todos-container {
-    @include grid-columns(3)
+    @include grid-columns(3);
   }
 }
