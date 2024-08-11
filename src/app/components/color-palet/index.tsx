@@ -1,9 +1,19 @@
-import { ComponentProps } from "react";
-import style from "./color-pale.style.module.scss";
+"use client";
 
-type ColorPaletteProps = ComponentProps<"div">;
+import { ComponentProps, Dispatch, SetStateAction } from "react";
+import style from "./color-palette.style.module.scss";
+import updateTodo from "@/app/services/update-todo";
+import { toast } from "react-toastify";
+import { useTodoStore } from "@/app/stores/todo-store";
+
+type ColorPaletteProps = ComponentProps<"div"> & {
+  todoId?: number;
+  stateCallback?: Dispatch<SetStateAction<string>>;
+};
 
 export default function ColorPalett(props: ColorPaletteProps) {
+  const filter = useTodoStore((state) => state.filter);
+
   const colors = [
     "#BAE2FF",
     "#B9FFDD",
@@ -19,13 +29,30 @@ export default function ColorPalett(props: ColorPaletteProps) {
     "#A99A7C",
   ];
 
+  const handleUpdate = (color: string) => {
+    if (props.todoId)
+      updateTodo({
+        id: props.todoId,
+        color,
+      })
+        .then(() => {
+          if (props.stateCallback) props.stateCallback(color);
+          filter();
+        })
+        .catch(() => {
+          toast.warning(
+            "Algum erro ocorreu durante a atualização de cor do todo"
+          );
+        });
+  };
+
   return (
     <div {...props} className={`${style.palette} ${props.className}`}>
-      {colors.map((c) => (
+      {colors.map((color) => (
         <div
-          /* TODO: implement the API call for changing colors */
-          key={c}
-          style={{ backgroundColor: c }}
+          key={color}
+          onClick={() => handleUpdate(color)}
+          style={{ backgroundColor: color }}
         ></div>
       ))}
     </div>
