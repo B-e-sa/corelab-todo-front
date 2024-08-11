@@ -10,7 +10,7 @@ pnpm dev
 bun dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000) com o seu browser para ver o resultado.
+Abra [http://localhost:3000](http://localhost:3000) junto ao backend para ver o resultado.
 
 ## Tecnologias utilizadas
 
