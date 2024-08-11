@@ -1,4 +1,4 @@
-import { TodoEntity } from "../components/todo/TodoEntity";
+import { TodoEntity } from "../shared/types/TodoEntity";
 import { api } from "../lib/axios";
 
 export default function createTodo({

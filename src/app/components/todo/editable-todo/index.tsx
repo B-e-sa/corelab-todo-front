@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, ComponentProps, useRef, useState } from "react";
 import ColorPalett from "../../color-palet";
 import IconWrapper from "../../icon-wrapper";
 import ActiveStarIcon from "../../icons/active-star";
@@ -9,11 +9,18 @@ import InactiveStarIcon from "../../icons/inactive-star";
 import PencilIcon from "../../icons/pencil";
 import XIcon from "../../icons/x";
 import styles from "./editable-todo.module.scss";
-import shared from "../shared.module.scss"
+import shared from "../shared.module.scss";
 import generateDarkerHex from "../../utils/generate-darker-hex";
 import useOutsideElementClick from "@/app/hooks/useOutsideElementClick";
+import updateTodo from "@/app/services/update-todo";
+import CheckmarkIcon from "../../icons/checkmark";
+import { toast } from "react-toastify";
+import changeTodoFavorite from "@/app/services/change-todo-favorite";
+import { useTodoStore } from "@/app/stores/todo-store";
+import deleteTodo from "@/app/services/delete-todo";
 
-type TodoProps = {
+type TodoProps = ComponentProps<"div"> & {
+  todoId?: number;
   title?: string;
   description?: string;
   color?: string;
@@ -21,21 +28,26 @@ type TodoProps = {
 };
 
 export default function Todo({
-  title = "",
-  description = "",
-  color = "#FFFFFF",
+  todoId,
+  title,
+  description,
+  color,
   favorite,
+  ...props
 }: TodoProps) {
-  // TODO: implement API call to edit todo fields
+  const { unfavoriteTodo, favoriteTodo, deleteStoreTodo } = useTodoStore(
+    (state) => state
+  );
   const [todoTitle, setTodoTitle] = useState(title);
   const [todoDescription, setTodoDescription] = useState(description);
-  const [todoColor, setTodoColor] = useState(color);
+  const [todoColor, setTodoColor] = useState(color || "#FFFFFF");
+  const [isFavorited, setIsFavorited] = useState(favorite);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isBeingEdited, setIsBeingedited] = useState(false);
 
   /**
    *
-   * The core palette will close if a click
+   * The color palette will close if a click
    * happens outside of it
    *
    */
@@ -54,11 +66,71 @@ export default function Todo({
     setIsPaletteOpen(!isPaletteOpen);
   };
 
-  const darkerTodoHex = generateDarkerHex(color);
+  const handleFavorite = () => {
+    if (todoId) {
+      changeTodoFavorite({ id: todoId, favorite: !isFavorited })
+        .then(() => {
+          if (isFavorited) {
+            setIsFavorited(false);
+            unfavoriteTodo(todoId);
+          } else {
+            setIsFavorited(true);
+            favoriteTodo(todoId);
+          }
+        })
+        .catch((e) => {
+          toast("Algum erro ocorreu ao tentar favoritar o todo");
+        });
+    }
+  };
+
+  const handleDelete = () => {
+    if (todoId) {
+      deleteTodo(todoId)
+        .then(() => deleteStoreTodo(todoId))
+        .catch(() => {
+          toast(
+            "Um erro ocorreu ao deletar seu todo. Tente novamente mais tarde"
+          );
+        });
+    }
+  };
+
+  const handleEdit = () => {
+    if (!isBeingEdited) {
+      setIsBeingedited(true);
+    } else {
+      if (todoId) {
+        updateTodo({
+          id: todoId,
+          ...(todoTitle != title && { title: todoTitle }),
+          ...(todoDescription != description && {
+            description: todoDescription,
+          }),
+        })
+          .then(() => {
+            setIsBeingedited(false);
+          })
+          .catch(() => {
+            toast.warning("Algum erro ocorreu durante a atualização do todo");
+          });
+      }
+    }
+  };
+
+  const darkerTodoHex = generateDarkerHex(todoColor);
 
   return (
-    // TODO: only favorited todos have shadow
-    <div style={{ backgroundColor: todoColor }} className={`${shared.todo} ${styles.todo}`}>
+    <div
+      {...props}
+      style={{ ...props.style, backgroundColor: todoColor }}
+      className={`
+        ${shared.todo} 
+        ${styles.todo} 
+        ${favorite && styles} 
+        ${props.className}
+      `}
+    >
       <div className={shared.head}>
         <input
           name="Título"
@@ -69,37 +141,41 @@ export default function Todo({
           onChange={handleTitle}
           disabled={!isBeingEdited}
         />
-        {/* TODO: implement API call to favorite todo */}
-        {favorite ? <ActiveStarIcon /> : <InactiveStarIcon />}
+        <div className={shared["favorite-container"]} onClick={handleFavorite}>
+          {isFavorited ? <ActiveStarIcon /> : <InactiveStarIcon />}
+        </div>
       </div>
-      <div className={shared.body}>
+      <div className={`${shared.body}`}>
         <textarea
           name="Descrição"
           title="Insira uma descrição em sua nota"
           placeholder="Clique ou arraste o arquivo para esta área para fazer upload"
           value={todoDescription}
+          rows={1000}
           onChange={handleDescription}
           disabled={!isBeingEdited}
         />
         <div className={styles.foot}>
           <div>
-            {/* TODO: implement state of being edited */}
-            <IconWrapper color={darkerTodoHex}>
-              <PencilIcon />
+            <IconWrapper onClick={handleEdit} color={darkerTodoHex}>
+              {isBeingEdited ? <CheckmarkIcon /> : <PencilIcon />}
             </IconWrapper>
             <IconWrapper onClick={handlePalette} color={darkerTodoHex}>
               <FillIcon />
             </IconWrapper>
           </div>
-          {/* TODO: implement api call to delete todo */}
-          <IconWrapper color={darkerTodoHex}>
+          <IconWrapper onClick={handleDelete} color={darkerTodoHex}>
             <XIcon />
           </IconWrapper>
         </div>
       </div>
       {isPaletteOpen && (
         <div ref={wrapperRef}>
-          <ColorPalett onClick={handlePalette} />
+          <ColorPalett
+            stateCallback={setTodoColor}
+            todoId={todoId}
+            onClick={handlePalette}
+          />
         </div>
       )}
     </div>
